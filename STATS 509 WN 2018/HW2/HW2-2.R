@@ -1,0 +1,36 @@
+dat = read.csv("O:\\18WIN\\STATS 509\\datasets\\ford.csv",header=T)
+dim(ford)
+summary(dat$FORD)
+sd(dat$FORD)
+qqnorm(dat$FORD)
+qqline(dat$FORD)
+shapiro.test(dat$FORD)
+
+#d
+par( mfrow = c(2, 3 ) )
+q1 = qt(seq(0,1,length = 2000),df = 1)
+q2 = sort(dat$FORD)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(1) Q-Q Plot")
+qqline(q2)
+q1 = qt(seq(0,1,length = 2000),df = 5)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(5) Q-Q Plot")
+qqline(q2)
+q1 = qt(seq(0,1,length = 2000),df = 10)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(10) Q-Q Plot")
+qqline(q2)
+q1 = qt(seq(0,1,length = 2000),df = 6)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(6) Q-Q Plot")
+qqline(q2)
+q1 = qt(seq(0,1,length = 2000),df = 7)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(7) Q-Q Plot")
+qqline(q2)
+q1 = qt(seq(0,1,length = 2000),df = 8)
+plot(q1,q2,xlab = "Student t Quantile",ylab = "Sample Quantile",main="df(8) Q-Q Plot")
+qqline(q2)
+
+#e
+se_mean = sd(dat$FORD)/sqrt(length(dat$FORD))
+quant = quantile(ecdf(dat$FORD),0.5)
+f = density(dat$FORD,from = quant,to = quant,n=1,kernel = "gaussian")$y
+se_median = sqrt(0.5*0.5/(length(dat$FORD)*(f)^2))
+se_mean;se_median

@@ -1,0 +1,53 @@
+library(fBasics)
+library(POT)
+library(evir)
+#a)
+dat = read.csv("O:\\18WIN\\STATS 509\\HW3\\SP100_daily_03-13.csv",header = T)
+SP100_dl = rev(dat$AdjClose)
+SP100_dl_lreturn = diff(log(SP100_dl)) # generating log returns (daily)
+d = as.Date(dat$Date,format="%m/%d/%Y")
+summary(SP100_dl_lreturn)
+sd(SP100_dl_lreturn)
+skewness(SP100_dl_lreturn)
+kurtosis(SP100_dl_lreturn)
+par(mfrow=c(1,2))
+hist(SP100_dl_lreturn)
+boxplot(SP100_dl_lreturn)
+plot(d[-1],SP100_dl_lreturn,type="l",xlab="Time",ylab="Log_Return")
+plot(d,SP100_dl,type="l",xlab="Time",ylab="Adjusted_Closing_Price")
+#b)
+par(mfrow=c(1,2))
+eecdf = ecdf(SP100_dl_lreturn)
+plot(eecdf)
+uv = seq(from=-0.06, to=-0.01, by=0.0025)
+plot(uv,eecdf(uv),type="l",xlab="x",ylab="Empirical CDF")
+tcplot(-SP100_dl_lreturn,c(0.01,0.04),nt=25,conf=0)
+gpd_fit=fitgpd(-SP100_dl_lreturn,0.015)
+qq(gpd_fit, main="Log Return QQ Plot on Tail",xlab="Claims",ylab="Empirical",ci=TRUE)
+gpd_est=gpd(-SP100_dl_lreturn,thresh=0.015,method=c("ml"),information=c("observed"))
+tp=tailplot(gpd_est,main="Tail Plot")
+#c)
+r_0.005 = qnorm(0.005,mean(SP100_dl_lreturn),sd(SP100_dl_lreturn))
+R_0.005 = exp(r_0.005)-1
+r_0.005;R_0.005
+#d)
+m = 0.015
+alphat = 1-0.005/eecdf(-m)
+xi = gpd_est$par.ests[1]
+scale = gpd_est$par.ests[2]
+r = qgpd(alphat, xi, m, scale)
+R = 1-exp(-r)
+r;R
+#e)
+quant(-SP100_dl_lreturn, p=0.995, models=50,reverse=TRUE, ci=FALSE, auto.scale=TRUE, labels=TRUE)
+#f)
+niter = 1e4
+exp_shortfall = rep(0,niter)
+set.seed(2015)
+for (m in 1:niter)
+{
+  r = rgpd(1000,xi,0.015,scale)
+  index = which(r > R)
+  exp_shortfall[m] = mean(r[index])
+}
+mean(exp_shortfall)
